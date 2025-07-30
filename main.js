@@ -1,4 +1,5 @@
 $(document).ready(function () {
+  //add subject fn
   $(".btn").on("click", function addFunction() {
     const subject = $("#subject-name").val().trim();
     const passing_marks = parseInt($("#passing-marks").val().trim());
@@ -38,7 +39,13 @@ $(document).ready(function () {
     $obtained_tData.append($input);
     $delete_tData.append($delete_btn);
 
-    $row.append($subject_tData, $passing_tData, $obtained_tData, $status_tData, $delete_tData);
+    $row.append(
+      $subject_tData,
+      $passing_tData,
+      $obtained_tData,
+      $status_tData,
+      $delete_tData
+    );
     $("#tbl-body").append($row);
 
     //clearing inp fields
@@ -46,11 +53,18 @@ $(document).ready(function () {
     $("#passing-marks").val("");
     total_footer();
 
-    // update pass/fail status fn
+  });
+   // update pass/fail status fn
     function update_status($input, passing_marks, $row, $status_span) {
       const value = parseInt($input.val());
+      if (isNaN(value)) {
+        $status_span.text("");
+        $status_span.removeAttr("class");
+        $row.removeAttr("class");
+        return;
+      }
 
-      if (!isNaN(value) && value >= passing_marks) {
+      if (value >= passing_marks) {
         $status_span.text("Pass").attr("class", "pass");
         $row.attr("class", "success");
       } else {
@@ -69,15 +83,25 @@ $(document).ready(function () {
       $("#tbl-body tr").each(function () {
         const passingVal = parseInt($(this).find("td:nth-child(2)").text());
         const obtainedVal = parseInt($(this).find("input").val());
-        
+        const status = $(this).find("td:nth-child(4)").text();
+
+        if (status === "Fail") {
+          total_status = false;
+        }
+
         total_subject++;
         total_passing_marks += isNaN(passingVal) ? 0 : passingVal;
         obtained_marks += isNaN(obtainedVal) ? 0 : obtainedVal;
       });
 
+      //assigning values to the footer fields
+      if (obtained_marks === 0) {
+        $("#total-status").text("");
+      } else {
+        $("#total-status").text(total_status ? "Pass" : "Fail");
+      }
       $("#total-subject").text(total_subject);
       $("#total-passing").text(total_passing_marks);
       $("#total-obtained").text(obtained_marks);
     }
-  });
 });
